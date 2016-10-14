@@ -1,0 +1,6 @@
+[submodule "sde-cookbook"]
+	path = sde-cookbook
+	url = https://github.com/erikboto/gdp-sde-vagrant-cookbook.git
+[submodule "cookbook"]
+	path = cookbook
+	url = https://github.com/erikboto/vagrant-cookbook.git
