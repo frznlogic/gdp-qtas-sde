@@ -59,7 +59,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Build Qt5 from git
   config.vm.provision "shell", privileged: false, 
-      args: ["qt5", "https://github.com/qt/qt5.git", "5.7", "--prefix=" + qtinstallprefix + " -opensource -confirm-license"],
+      args: ["qt5", "5.7", "--prefix=" + qtinstallprefix + " -opensource -confirm-license"],
       path: "cookbook/build/qt5-git-builder.sh"
 
   # Build QtIVI
