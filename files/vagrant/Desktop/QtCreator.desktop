@@ -1,0 +1,6 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=Qt Creator
+Icon=QtProject-qtcreator.png
+Exec=/home/vagrant/bin/qtcreator-environment-wrapper.sh

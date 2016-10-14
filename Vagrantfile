@@ -25,11 +25,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Example for VirtualBox:
   #
    config.vm.provider "virtualbox" do |vb|
+     # If you want to run vagrant up on a fast build server over ssh, comment
+     # out the line below to run headless.
      vb.gui = true
   
      # Use VBoxManage to customize the VM. For example to change memory:
      vb.customize ["modifyvm", :id, "--memory", "4096"]
      vb.cpus = 2
+
+     # Use something like this on a fast build server
+     #vb.customize ["modifyvm", :id, "--memory", "8192"]
+     #vb.cpus = 6
    end
 
   #
@@ -100,7 +106,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       path: "cookbook/build/qmake-git-builder.sh"
 
 
-  # Build qmllive
+  # Build gammaray
   config.vm.provision "shell", privileged: false, 
       args: ["gammaray", "https://github.com/KDAB/GammaRay.git", "-DGAMMARAY_BUILD_DOCS=off -DCMAKE_PREFIX_PATH=" + qtcmakepath],
       path: "cookbook/build/cmake-git-builder.sh"
@@ -111,9 +117,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       args: ["minnowboard"],
       path: "sde-cookbook/sdk/download-sdk.sh"
 
-  # Configure qtcreator for use with target SDK
+  # Install and configure qtcreator for use with target SDK
+  config.vm.provision "shell" do |s|
+    s.inline = "apt-get install qtcreator -y"
+  end
+
+  # Copy over some skeleton files into users home dir
   config.vm.provision "shell", privileged: false, 
       args: ["Minnowboard"],
       path: "sde-cookbook/sdk/configure-qtcreator.sh"
+
+  config.vm.provision "file", source: "files/vagrant", destination: "/home/"
 
 end

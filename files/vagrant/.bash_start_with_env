@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export USE_SDK=1
+/bin/bash
