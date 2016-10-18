@@ -95,6 +95,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       args: ["neptune-ui", "http://code.qt.io/qt-apps/neptune-ui.git", qmakepath],
       path: "cookbook/build/qmake-git-builder.sh"
 
+  config.vm.provision "shell", privileged: false,
+      args: [qtinstallprefix],
+      path: "sde-cookbook/misc/perform-extra-neptune-setup.sh"
+
   # Build dlt-viewer
   config.vm.provision "shell", privileged: false, 
       args: ["dlt-viewer", "http://github.com/GENIVI/dlt-viewer.git", qmakepath, "", "BuildDltViewer.pro"],
@@ -122,11 +126,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     s.inline = "apt-get install qtcreator -y"
   end
 
-  # Copy over some skeleton files into users home dir
   config.vm.provision "shell", privileged: false, 
       args: ["Minnowboard"],
       path: "sde-cookbook/sdk/configure-qtcreator.sh"
 
+  # Copy over some skeleton files into users home dir
   config.vm.provision "file", source: "files/vagrant", destination: "/home/"
 
+  # Install some example media for music player app
+  config.vm.provision "shell", privileged: false,
+      path: "sde-cookbook/misc/install-example-media.sh"
 end
