@@ -24,19 +24,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-   config.vm.provider "virtualbox" do |vb|
-     # If you want to run vagrant up on a fast build server over ssh, comment
-     # out the line below to run headless.
-     vb.gui = true
-  
-     # Use VBoxManage to customize the VM. For example to change memory:
-     vb.customize ["modifyvm", :id, "--memory", "4096"]
-     vb.cpus = 2
 
-     # Use something like this on a fast build server
-     #vb.customize ["modifyvm", :id, "--memory", "8192"]
-     #vb.cpus = 6
-   end
+  # Set number of CPUs to use for 
+  num_cpus = (ENV["VAGRANT_NUM_CPUS"] || "2").to_i
+  ram_mb = ENV["VAGRANT_RAM"] || "4096"
+
+  config.vm.provider "virtualbox" do |vb|
+    # If you want to run vagrant up on e.g. a fast build server over ssh, comment
+    # out the line below to run headless.
+    # vb.gui = true
+ 
+    vb.customize ["modifyvm", :id, "--memory", ram_mb]
+    vb.cpus = num_cpus
+  end
+
+  makeflags = "-j" + String(num_cpus + 1)
 
   #
   # Start setting up the machine as a GENIVI SDE
@@ -66,17 +68,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Build Qt5 from git
   config.vm.provision "shell", privileged: false, 
       args: ["qt5", "5.7", "--prefix=" + qtinstallprefix + " -opensource -confirm-license"],
-      path: "cookbook/build/qt5-git-builder.sh"
+      path: "cookbook/build/qt5-git-builder.sh",
+      env: {"MAKEFLAGS" => makeflags}
 
   # Build QtIVI
   config.vm.provision "shell", privileged: false, 
       args: ["qtivi", "http://code.qt.io/qt/qtivi.git", qmakepath],
-      path: "cookbook/build/qmake-git-builder.sh"
+      path: "cookbook/build/qmake-git-builder.sh",
+      env: {"MAKEFLAGS" => makeflags}
 
   # Build QtApplicationManager
   config.vm.provision "shell", privileged: false, 
       args: ["qtapplicationmanager", "http://code.qt.io/qt/qtapplicationmanager.git", qmakepath],
-      path: "cookbook/build/qmake-git-builder.sh"
+      path: "cookbook/build/qmake-git-builder.sh",
+      env: {"MAKEFLAGS" => makeflags}
   
   # Install template configuration for QtApplicationManager
   config.vm.provision "shell" do |s|
@@ -93,7 +98,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Build neptune-ui
   config.vm.provision "shell", privileged: false, 
       args: ["neptune-ui", "http://code.qt.io/qt-apps/neptune-ui.git", qmakepath],
-      path: "cookbook/build/qmake-git-builder.sh"
+      path: "cookbook/build/qmake-git-builder.sh",
+      env: {"MAKEFLAGS" => makeflags}
 
   config.vm.provision "shell", privileged: false,
       args: [qtinstallprefix],
@@ -102,18 +108,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Build dlt-viewer
   config.vm.provision "shell", privileged: false, 
       args: ["dlt-viewer", "http://github.com/GENIVI/dlt-viewer.git", qmakepath, "", "BuildDltViewer.pro"],
-      path: "cookbook/build/qmake-git-builder.sh"
+      path: "cookbook/build/qmake-git-builder.sh",
+      env: {"MAKEFLAGS" => makeflags}
 
   # Build qmllive
   config.vm.provision "shell", privileged: false, 
       args: ["qmllive", "http://code.qt.io/qt-apps/qmllive.git", qmakepath],
-      path: "cookbook/build/qmake-git-builder.sh"
-
+      path: "cookbook/build/qmake-git-builder.sh",
+      env: {"MAKEFLAGS" => makeflags}
 
   # Build gammaray
   config.vm.provision "shell", privileged: false, 
       args: ["gammaray", "https://github.com/KDAB/GammaRay.git", "-DGAMMARAY_BUILD_DOCS=off -DCMAKE_PREFIX_PATH=" + qtcmakepath],
-      path: "cookbook/build/cmake-git-builder.sh"
+      path: "cookbook/build/cmake-git-builder.sh",
+      env: {"MAKEFLAGS" => makeflags}
 
   # Download and install target SDK
   # TODO: Make this download machine specific
