@@ -17,22 +17,9 @@ To start the VM creation run `vagrant up`, this will take a while so please be p
 
 
 # Speeding up the build
+You can use VAGRANT_NUM_CPUS and VAGRANT_RAM to change the amount of cores and RAM the VM gets, and MAKEFLAGS are set to -j(VAGRANT_NUM_CPUS+1) to speed up builds.
 
-In order to create the VM faster some settings can be changed in Vagrantfile, see the excerpt below.
+E.g. `VAGRANT_NUM_CPUS=6 VAGRANT_RAM=8192 vagrant up`.
 
-```
-   config.vm.provider "virtualbox" do |vb|
-     # If you want to run vagrant up on a fast build server over ssh, comment
-     # out the line below to run headless.
-     vb.gui = true
+If used over ssh you can disable graphical output by using vb.gui = false, see info in Vagrantfile.
 
-     # Use VBoxManage to customize the VM. For example to change memory:
-     vb.customize ["modifyvm", :id, "--memory", "4096"]
-     vb.cpus = 2
-
-     # Use something like this on a fast build server
-     #vb.customize ["modifyvm", :id, "--memory", "8192"]
-     #vb.cpus = 6
-   end
-
-```
