@@ -12,7 +12,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
-  config.vm.network "public_network"
+  #config.vm.network "public_network"
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
@@ -30,6 +30,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ram_mb = ENV["VAGRANT_RAM"] || "4096"
 
   config.vm.provider "virtualbox" do |vb|
+
+    # cableconnected on is needed for nested virtualization build environment.
+    vb.customize ["modifyvm", :id, "--cableconnected1", "on"]
+
     # If you want to run vagrant up on e.g. a fast build server over ssh, comment
     # out the line below to run headless.
     # vb.gui = true
