@@ -65,15 +65,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", path: "cookbook/deps/qt5-dependencies.sh"
 
   # Define where to install Qt
-  qtinstallprefix = "/opt/qt-5.7-git"
+  qtinstallprefix = "/opt/qt-5.8-git"
   qmakepath = qtinstallprefix + "/bin/qmake"
   qtcmakepath = qtinstallprefix + "/lib/cmake/"
 
-  # Build Qt5 from git
-  config.vm.provision "shell", privileged: false, 
-      args: ["qt5", "5.7", "--prefix=" + qtinstallprefix + " -opensource -confirm-license"],
-      path: "cookbook/build/qt5-git-builder.sh",
-      env: {"MAKEFLAGS" => makeflags}
+  # Build Qt5 from tarball
+  config.vm.provision "shell", privileged: false, args: [qtinstallprefix], :inline => <<-SHELL
+      QT_INSTALL_PREFIX=$1
+      wget https://download.qt.io/archive/qt/5.8/5.8.0/single/qt-everywhere-opensource-src-5.8.0.tar.gz
+      tar -xf qt-everywhere-opensource-src-5.8.0.tar.gz
+      cd qt-everywhere-opensource-src-5.8.0
+      ./configure -prefix "$QT_INSTALL_PREFIX" -opensource -confirm-license
+      make -j4
+      sudo make install
+  SHELL
 
   # Build QtIVI
   config.vm.provision "shell", privileged: false, 
@@ -125,8 +130,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", args: [qtinstallprefix], :inline => <<-SHELL
 	QTINSTALLPREFIX=$1
 	mkdir -p /etc/xdg/qtchooser
-	echo "$QTINSTALLPREFIX/bin" > /etc/xdg/qtchooser/qt5.7-git.conf
-	echo "$QTINSTALLPREFIX/lib" >> /etc/xdg/qtchooser/qt5.7-git.conf
+	echo "$QTINSTALLPREFIX/bin" > /etc/xdg/qtchooser/qt5.8-git.conf
+	echo "$QTINSTALLPREFIX/lib" >> /etc/xdg/qtchooser/qt5.8-git.conf
   SHELL
 
   # Build gammaray
@@ -135,7 +140,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       path: "cookbook/build/cmake-git-builder.sh",
       env: {
           "MAKEFLAGS" => makeflags,
-          "QT_SELECT" => "qt5.7-git"
+          "QT_SELECT" => "qt5.8-git"
       }
 
   # Download and install target SDK
