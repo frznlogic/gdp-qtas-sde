@@ -33,6 +33,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # cableconnected on is needed for nested virtualization build environment.
     vb.customize ["modifyvm", :id, "--cableconnected1", "on"]
+    vb.customize ["modifyvm", :id, "--ioapic", "on"]
+
 
     # If you want to run vagrant up on e.g. a fast build server over ssh, comment
     # out the line below to run headless.
