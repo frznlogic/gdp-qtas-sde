@@ -83,16 +83,22 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   SHELL
 
   # Build QtIVI
-  config.vm.provision "shell", privileged: false, 
-      args: ["qtivi", "http://code.qt.io/qt/qtivi.git", qmakepath],
+  config.vm.provision "shell", privileged: false,
       path: "cookbook/build/qmake-git-builder.sh",
-      env: {"MAKEFLAGS" => makeflags}
+      env: {"SRC_DIR" => "qtivi",
+            "WIPE_SRC_DIR" => "yes",
+            "GIT_REPO" => "http://code.qt.io/qt/qtivi.git",
+            "QMAKE_PATH" => qmakepath,
+            "MAKEFLAGS" => makeflags}
 
   # Build QtApplicationManager
-  config.vm.provision "shell", privileged: false, 
-      args: ["qtapplicationmanager", "http://code.qt.io/qt/qtapplicationmanager.git", qmakepath],
+  config.vm.provision "shell", privileged: false,
       path: "cookbook/build/qmake-git-builder.sh",
-      env: {"MAKEFLAGS" => makeflags}
+      env: {"SRC_DIR" => "qtapplicationmanager",
+            "WIPE_SRC_DIR" => "yes",
+            "GIT_REPO" => "http://code.qt.io/qt/qtapplicationmanager.git",
+            "QMAKE_PATH" => qmakepath,
+            "MAKEFLAGS" => makeflags }
   
   # Install template configuration for QtApplicationManager
   config.vm.provision "shell" do |s|
@@ -107,26 +113,37 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   # Build neptune-ui
-  config.vm.provision "shell", privileged: false, 
-      args: ["neptune-ui", "http://code.qt.io/qt-apps/neptune-ui.git", qmakepath],
+  config.vm.provision "shell", privileged: false,
       path: "cookbook/build/qmake-git-builder.sh",
-      env: {"MAKEFLAGS" => makeflags}
+      env: {"SRC_DIR" => "neptune-ui",
+            "WIPE_SRC_DIR" => "yes",
+            "GIT_REPO" => "http://code.qt.io/qt-apps/neptune-ui.git",
+            "QMAKE_PATH" => qmakepath,
+            "MAKEFLAGS" => makeflags}
 
   config.vm.provision "shell", privileged: false,
-      args: [qtinstallprefix],
-      path: "sde-cookbook/misc/perform-extra-neptune-setup.sh"
+      path: "sde-cookbook/misc/perform-extra-neptune-setup.sh",
+      args: [qtinstallprefix]
 
   # Build dlt-viewer
-  config.vm.provision "shell", privileged: false, 
-      args: ["dlt-viewer", "http://github.com/GENIVI/dlt-viewer.git", qmakepath, "", "BuildDltViewer.pro"],
+  config.vm.provision "dlt-viewer", type: "shell", privileged: false,
       path: "cookbook/build/qmake-git-builder.sh",
-      env: {"MAKEFLAGS" => makeflags}
+      env: {"SRC_DIR" => "dlt-viewer",
+            "WIPE_SRC_DIR" => "yes",
+            "GIT_REPO" => "http://github.com/GENIVI/dlt-viewer.git",
+            "QMAKE_PATH" => qmakepath,
+            "PRO_FILE" => "../BuildDltViewer.pro",
+            "MAKEFLAGS" => makeflags}
 
   # Build qmllive
-  config.vm.provision "shell", privileged: false, 
+  config.vm.provision "shell", privileged: false,
       args: ["qmllive", "http://code.qt.io/qt-apps/qmllive.git", qmakepath],
       path: "cookbook/build/qmake-git-builder.sh",
-      env: {"MAKEFLAGS" => makeflags}
+      env: {"SRC_DIR" => "qmllive",
+            "WIPE_SRC_DIR" => "yes",
+            "GIT_REPO" => "http://code.qt.io/qt-apps/qmllive.git",
+            "QMAKE_PATH" => qmakepath,
+            "MAKEFLAGS" => makeflags}
 
   # Configure qtchooser
   config.vm.provision "shell", args: [qtinstallprefix], :inline => <<-SHELL
@@ -137,10 +154,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   SHELL
 
   # Build gammaray
-  config.vm.provision "shell", privileged: false, 
-      args: ["gammaray", "https://github.com/KDAB/GammaRay.git", "-DGAMMARAY_BUILD_DOCS=off -DCMAKE_PREFIX_PATH=" + qtcmakepath],
+  config.vm.provision "gammaray", type: "shell", privileged: false,
       path: "cookbook/build/cmake-git-builder.sh",
       env: {
+          "SRC_DIR" => "gammaray",
+          "WIPE_SRC_DIR" => "yes",
+          "GIT_REPO" => "https://github.com/KDAB/GammaRay.git",
+          "CMAKE_ARGS" => "-DGAMMARAY_BUILD_DOCS=off -DCMAKE_PREFIX_PATH=" + qtcmakepath,
           "MAKEFLAGS" => makeflags,
           "QT_SELECT" => "qt5.8-git"
       }
@@ -164,6 +184,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "file", source: "files/vagrant", destination: "/home/"
 
   # Install some example media for music player app
-  config.vm.provision "shell", privileged: false,
+  config.vm.provision "example-media", type: "shell", privileged: false,
       path: "sde-cookbook/misc/install-example-media.sh"
 end
