@@ -65,6 +65,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Enable deb-src repos and install qt5 build dependencies
   config.vm.provision "shell", path: "cookbook/system-config/enable-all-deb-src.sh"
   config.vm.provision "shell", path: "cookbook/deps/qt5-dependencies.sh"
+  config.vm.provision "shell", path: "cookbook/deps/common-build-dependencies.sh"
+  config.vm.provision "shell", path: "cookbook/deps/softwarecontainer-dependencies.sh"
+  config.vm.provision "shell", path: "cookbook/deps/sphinx-dependencies.sh"
 
   # Define where to install Qt
   qtinstallprefix = "/opt/qt-5.8-git"
@@ -90,6 +93,22 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             "GIT_REPO" => "http://code.qt.io/qt/qtivi.git",
             "QMAKE_PATH" => qmakepath,
             "MAKEFLAGS" => makeflags}
+
+  # Build ivi-logging
+  config.vm.provision "shell", privileged: false,
+      path: "cookbook/build/cmake-git-builder.sh",
+      env: {"SRC_DIR" => "ivi-logging",
+            "WIPE_SRC_DIR" => "yes",
+            "GIT_REPO" => "https://github.com/Pelagicore/ivi-logging.git"}
+
+  # Build softwarecontainer
+  config.vm.provision "softwarecontainer", type: "shell", privileged: false,
+      path: "cookbook/build/cmake-git-builder.sh",
+      env: {"SRC_DIR" => "softwarecontainer",
+            "WIPE_SRC_DIR" => "yes",
+            "ENABLE_SUBMODULES" => "yes",
+            "GIT_REPO" => "https://github.com/Pelagicore/softwarecontainer.git",
+            "CMAKE_ARGS" => "-DENABLE_SYSTEMD=ON -DENABLE_TEST=ON -DENABLE_EXAMPLES=ON" }
 
   # Build QtApplicationManager
   config.vm.provision "shell", privileged: false,
